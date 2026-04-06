@@ -337,3 +337,11 @@ export PATH=$PATH:~/.local/bin
 - [ERPNext Documentation](https://docs.erpnext.com/)
 - [Frappe Docker Repository](https://github.com/frappe/frappe_docker)
 - [Bench CLI Guide](https://github.com/frappe/bench)
+
+
+## Resources
+
+- [Frappe Framework Documentation](https://frappeframework.com/docs)
+- [ERPNext Documentation](https://docs.erpnext.com/)
+- [Frappe Docker Repository](https://github.com/frappe/frappe_docker)
+- [Bench CLI Guide](https://github.com/frappe/bench)
