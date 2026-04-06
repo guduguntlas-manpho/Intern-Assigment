@@ -1,347 +1,149 @@
-# ERPNext Environment Setup Guide
+```markdown
+# Frappe Framework Installation Guide
 
-This guide will help you set up a working ERPNext development environment for completing the technical assignment.
+This guide provides a step-by-step walkthrough for setting up a Frappe development environment. This is a **Native (Bare-Metal)** setup, recommended for better performance and easier debugging.
 
 ## Prerequisites
+- **RAM**: 4GB Minimum (8GB Recommended)
+- **Disk**: 10GB Free Space
+- **Python**: 3.10, 3.11, or 3.12
+- **Node.js**: 18 or 20
 
-- **OS**: Linux (Ubuntu 20.04+), macOS, or Windows with WSL2
-- **RAM**: Minimum 4GB (8GB recommended)
-- **Disk Space**: 10GB free space
-- **Internet**: Stable connection for downloads
+---
 
-## Option A: Docker Setup (Recommended)
+## 💻 Option 1: Windows (via WSL2)
+*Windows users must use WSL2 to run a Linux environment inside Windows.*
 
-### Why Docker?
+### 1. Setup WSL2
+1. Open **PowerShell** as Administrator and run:
+   ```powershell
+   wsl --install
+   ```
+2. **Restart your PC.**
+3. After restart, a terminal will open. Set your **Username** and **Password**.
+4. Update the system:
+   ```bash
+   sudo apt update && sudo apt upgrade -y
+   ```
 
-- ✅ Faster setup
-- ✅ Consistent environment
-- ✅ Easy to reset
-- ✅ No system-wide dependencies
+### 2. Integration with VS-Code
+1. Install the **WSL Extension** in VS-Code.
+2. In your Ubuntu terminal, type `code .` to open the current folder in VS-Code.
+3. **Now follow the "Ubuntu / Linux" steps below inside your VS-Code Terminal.**
 
-### Step 1: Install Docker
+---
 
-**Ubuntu/Debian**:
+## 🐧 Option 2: Ubuntu / Linux (Native)
+*Follow these steps if you are using Ubuntu or the WSL2 terminal.*
+
+### 1. Install Dependencies
 ```bash
-sudo apt-get update
-sudo apt-get install docker.io docker-compose -y
-sudo usermod -aG docker $USER
-# Log out and log back in
+sudo apt update
+sudo apt install -y python3-dev python3-pip python3-venv software-properties-common mariadb-server mariadb-client redis-server nodejs npm curl git libmysqlclient-dev
+
+# Install Yarn globally
+sudo npm install -g yarn
 ```
 
-**macOS**:
+### 2. Configure MariaDB
+1. Open config: `sudo nano /etc/mysql/mariadb.conf.d/50-server.cnf`
+2. Add these lines under the `[mysqld]` section:
+   ```ini
+   innodb-check-optimize-with-force = 1
+   innodb-file-format = Barracuda
+   innodb-file-per-table = 1
+   innodb-large-prefix = 1
+   character-set-client-handshake = FALSE
+   character-set-server = utf8mb4
+   collation-server = utf8mb4_unicode_ci
+   ```
+3. Save (`Ctrl+O`, `Enter`) and Exit (`Ctrl+X`).
+4. Restart & Secure:
+   ```bash
+   sudo service mysql restart
+   sudo mysql_secure_installation
+   ```
+   *(Set a root password and remember it!)*
+
+### 3. Install Bench & Init
 ```bash
-# Download and install Docker Desktop from:
-# https://www.docker.com/products/docker-desktop
-```
-
-**Windows (WSL2)**:
-```bash
-# Install Docker Desktop for Windows with WSL2 backend
-# https://docs.docker.com/desktop/windows/install/
-```
-
-### Step 2: Clone Frappe Docker
-
-```bash
-git clone https://github.com/frappe/frappe_docker.git
-cd frappe_docker
-```
-
-### Step 3: Setup Development Environment
-
-```bash
-# Copy example environment file
-cp example.env .env
-
-# Start containers
-docker-compose -f pwd.yml up -d
-
-# Wait for services to start (2-3 minutes)
-docker-compose -f pwd.yml ps
-```
-
-### Step 4: Create a New Site
-
-```bash
-# Create site
-docker-compose -f pwd.yml exec backend bench new-site library.localhost \
-  --admin-password admin \
-  --db-root-password admin
-
-# Set site as current site
-docker-compose -f pwd.yml exec backend bench use library.localhost
-
-# Install ERPNext
-docker-compose -f pwd.yml exec backend bench get-app erpnext --branch version-15
-docker-compose -f pwd.yml exec backend bench --site library.localhost install-app erpnext
-
-# Enable developer mode
-docker-compose -f pwd.yml exec backend bench --site library.localhost set-config developer_mode 1
-
-# Clear cache
-docker-compose -f pwd.yml exec backend bench --site library.localhost clear-cache
-```
-
-### Step 5: Access ERPNext
-
-1. Open browser: `http://localhost:8000`
-2. Login:
-   - Username: `Administrator`
-   - Password: `admin`
-
-### Step 6: Create Custom App
-
-```bash
-# Create new app
-docker-compose -f pwd.yml exec backend bench new-app library_management
-
-# Install app on site
-docker-compose -f pwd.yml exec backend bench --site library.localhost install-app library_management
-
-# Restart bench
-docker-compose -f pwd.yml restart backend
+pip3 install frappe-bench
+bench init frappe-bench --frappe-branch version-15
+cd frappe-bench
 ```
 
 ---
 
-## Option B: Bare-Metal Setup (Fallback)
+## 🍎 Option 3: macOS
+*Note: macOS uses Homebrew for package management.*
 
-### Why Bare-Metal?
-
-- Better performance on some systems
-- Direct access to files
-- More control over configuration
-
-### Step 1: Install System Dependencies
-
-**Ubuntu 20.04/22.04**:
+### 1. Install Homebrew & Dependencies
 ```bash
-sudo apt-get update
-sudo apt-get install -y \
-    git python3-dev python3-pip python3-venv \
-    redis-server mariadb-server \
-    libmysqlclient-dev \
-    curl wget \
-    nodejs npm
+# Install Homebrew if you don't have it
+/bin/bash -c "$(curl -fsSL [https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh](https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh))"
 
-# Install specific Node version (16 or 18)
-curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
-sudo apt-get install -y nodejs
-
-# Install yarn
-sudo npm install -g yarn
+# Install core packages
+brew install python@3.11 mariadb redis node@18 yarn
 ```
 
-**macOS**:
+### 2. Start Services
 ```bash
-# Install Homebrew if not installed
-/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-
-# Install dependencies
-brew install python@3.10 mariadb redis node@18 git
-
-# Start services
 brew services start mariadb
 brew services start redis
 ```
 
-### Step 2: Configure MariaDB
+### 3. Configure MariaDB
+1. Open config: `nano /usr/local/etc/my.cnf` (or `/opt/homebrew/etc/my.cnf` for M1/M2/M3 Macs).
+2. Add the same `[mysqld]` configuration used in the Ubuntu section above.
+3. Restart MariaDB: `brew services restart mariadb`.
 
+### 4. Install Bench
 ```bash
-# Secure installation
-sudo mysql_secure_installation
-
-# Create database user
-sudo mysql -u root -p
-```
-
-In MySQL prompt:
-```sql
-CREATE USER 'frappe'@'localhost' IDENTIFIED BY 'frappe';
-GRANT ALL PRIVILEGES ON *.* TO 'frappe'@'localhost' WITH GRANT OPTION;
-FLUSH PRIVILEGES;
-EXIT;
-```
-
-Edit MariaDB config:
-```bash
-sudo nano /etc/mysql/mariadb.conf.d/50-server.cnf
-```
-
-Add under `[mysqld]`:
-```ini
-[mysqld]
-character-set-client-handshake = FALSE
-character-set-server = utf8mb4
-collation-server = utf8mb4_unicode_ci
-
-[mysql]
-default-character-set = utf8mb4
-```
-
-Restart MariaDB:
-```bash
-sudo service mysql restart
-```
-
-### Step 3: Install Bench
-
-```bash
-# Install bench CLI
-sudo pip3 install frappe-bench
-
-# Initialize bench
+pip3 install frappe-bench
 bench init frappe-bench --frappe-branch version-15
-
-# Navigate to bench directory
 cd frappe-bench
 ```
 
-### Step 4: Create Site
+---
 
+## 🚀 Finalizing Setup (All Platforms)
+
+Once the `bench` is initialized and you are inside the `frappe-bench` folder, run:
+
+### 1. Create a Site
 ```bash
-# Create new site
-bench new-site library.localhost \
-  --db-name library_db \
-  --admin-password admin
-
-# Set as current site
-bench use library.localhost
+bench new-site mysite.localhost
 ```
+*You will be asked for the **MariaDB root password** (from step 2) and to create a new **Administrator password** for the web login.*
 
-### Step 5: Install ERPNext
-
+### 2. Start the Server
 ```bash
-# Get ERPNext app
-bench get-app erpnext --branch version-15
-
-# Install on site
-bench --site library.localhost install-app erpnext
-
-# Enable developer mode
-bench --site library.localhost set-config developer_mode 1
-
-# Start bench
 bench start
 ```
 
-### Step 6: Access ERPNext
-
-1. Open browser: `http://library.localhost:8000`
-2. Login:
-   - Username: `Administrator`
-   - Password: `admin`
-
-### Step 7: Create Custom App
-
-```bash
-# In a new terminal (keep bench running in first terminal)
-cd frappe-bench
-
-# Create app
-bench new-app library_management
-
-# Install app
-bench --site library.localhost install-app library_management
-
-# Restart bench (Ctrl+C in first terminal, then bench start)
-```
+### 3. Access the Web UI
+- **URL**: `http://localhost:8000`
+- **User**: `Administrator`
+- **Password**: (The one you just created)
 
 ---
 
-## Verification
+## 🛠️ Essential Bench Commands
 
-After setup, verify your environment using the [VERIFICATION.md](VERIFICATION.md) checklist.
-
----
-
-## Common Issues
-
-### Docker Issues
-
-**Port 8000 already in use**:
-```bash
-# Find process using port
-sudo lsof -i :8000
-# Kill process or change port in docker-compose file
-```
-
-**Permission denied**:
-```bash
-# Add user to docker group
-sudo usermod -aG docker $USER
-# Log out and log back in
-```
-
-**Containers not starting**:
-```bash
-# Check logs
-docker-compose -f pwd.yml logs backend
-# Restart containers
-docker-compose -f pwd.yml restart
-```
-
-### Bare-Metal Issues
-
-**MariaDB connection error**:
-```bash
-# Check MariaDB is running
-sudo service mysql status
-# Restart if needed
-sudo service mysql restart
-```
-
-**Redis connection error**:
-```bash
-# Check Redis is running
-sudo service redis-server status
-# Restart if needed
-sudo service redis-server restart
-```
-
-**Node version mismatch**:
-```bash
-# Check Node version
-node --version
-# Should be v16.x or v18.x
-
-# Install correct version using nvm
-curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash
-nvm install 18
-nvm use 18
-```
-
-**Bench command not found**:
-```bash
-# Install bench globally
-sudo pip3 install frappe-bench
-
-# Or add to PATH
-export PATH=$PATH:~/.local/bin
-```
+| Action | Command |
+| :--- | :--- |
+| **Create New App** | `bench new-app [app_name]` |
+| **Install App to Site** | `bench --site [site_name] install-app [app_name]` |
+| **Enter Console** | `bench --site [site_name] console` |
+| **Enable Dev Mode** | `bench --site [site_name] set-config developer_mode 1` |
+| **Watch Logs** | `bench watch` |
 
 ---
 
-## Next Steps
-
-1. ✅ Complete verification checklist
-2. ✅ Read code quality guidelines
-3. ✅ Review Git workflow
-4. ✅ Start your level's tasks
-
----
-
-## Resources
-
-- [Frappe Framework Documentation](https://frappeframework.com/docs)
-- [ERPNext Documentation](https://docs.erpnext.com/)
-- [Frappe Docker Repository](https://github.com/frappe/frappe_docker)
-- [Bench CLI Guide](https://github.com/frappe/bench)
-
-
-## Resources
-
-- [Frappe Framework Documentation](https://frappeframework.com/docs)
-- [ERPNext Documentation](https://docs.erpnext.com/)
+## 💡 Pro Tips for Freshers
+- **Don't use `sudo`** for `bench` commands. It will break file permissions.
+- **Developer Mode**: Always enable `developer_mode` if you want to create new DocTypes.
+- **Port 8000 Busy?**: If the port is taken, use `bench set-mariadb-host localhost` or check for hanging processes with `lsof -i :8000`.
+```
 - [Frappe Docker Repository](https://github.com/frappe/frappe_docker)
 - [Bench CLI Guide](https://github.com/frappe/bench)
