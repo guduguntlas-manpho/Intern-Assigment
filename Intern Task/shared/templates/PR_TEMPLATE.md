@@ -1,108 +1,63 @@
-# Pull Request Template
+# GitHub Setup Assignment
 
-## Summary
+## Objective
 
-[Provide a brief description of what this PR does in 2-3 sentences]
+Learn basic GitHub usage: repository creation, cloning, committing, and pushing code.
 
-## Type of Change
+## Tasks
 
-- [ ] New feature
-- [ ] Bug fix
-- [ ] Documentation update
-- [ ] Refactoring
-- [ ] Performance improvement
-- [ ] Test addition/update
+### 1. Create a GitHub account
 
-## Changes Made
+* Sign up on GitHub (if not already done)
 
-[List the main changes in bullet points]
+### 2. Create a new repository
 
-- 
-- 
-- 
+* Repository name: `intern-assignment`
+* Initialize with a README
 
-## Related DocTypes/Files
+### 3. Clone the repository
 
-[List DocTypes created/modified and key files changed]
+```bash
+git clone https://github.com/<your-username>/intern-assignment.git
+cd intern-assignment
+```
 
-- 
-- 
+### 4. Add a new file
 
-## Screenshots/GIFs
+```bash
+echo "This is my first file" > test.txt
+```
 
-[Add screenshots or GIFs demonstrating the changes, especially for UI changes]
+### 5. Check status
 
-### Before
-[Screenshot of before state, if applicable]
+```bash
+git status
+```
 
-### After
-[Screenshot of after state]
+### 6. Add the file to staging
 
-## Testing Steps
+```bash
+git add test.txt
+```
 
-[Provide step-by-step instructions for testing this PR]
+### 7. Commit the changes
 
-1. 
-2. 
-3. 
+```bash
+git commit -m "Added test.txt file"
+```
 
-## Expected Behavior
+### 8. Push to GitHub
 
-[Describe what should happen when following the testing steps]
+```bash
+git push origin main
+```
 
-## Edge Cases Handled
+## Submission
 
-[List edge cases you've tested and handled]
+* Share your repository link
 
-- [ ] 
-- [ ] 
-- [ ] 
+## Expected Outcome
 
-## Known Limitations
-
-[List any known limitations or future improvements]
-
-- 
-- 
-
-## Performance Considerations
-
-[Describe any performance optimizations or considerations]
-
-## Security Considerations
-
-[Describe any security measures implemented]
-
-## Tests Added
-
-- [ ] Unit tests
-- [ ] Integration tests
-- [ ] Manual testing completed
-
-## Documentation Updated
-
-- [ ] Code comments/docstrings
-- [ ] README
-- [ ] User documentation
-
-## Time Spent
-
-- Implementation: [X hours]
-- Testing: [X hours]
-- Documentation: [X hours]
-- **Total: [X hours]**
-
-## Checklist
-
-- [ ] Code follows style guidelines
-- [ ] Self-review completed
-- [ ] Comments added for complex logic
-- [ ] Tests added/updated and passing
-- [ ] Documentation updated
-- [ ] No console errors
-- [ ] Screenshots attached
-- [ ] Commit messages follow conventions
-
-## Additional Notes
-
-[Any other information reviewers should know]
+* Repository created successfully
+* File added and visible in GitHub
+* At least one commit pushed
